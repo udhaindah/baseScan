@@ -320,54 +320,123 @@ function buildUi() {
   <title>${profile.name}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --page:${profile.theme.page};
-      --panel:${profile.theme.panel};
-      --edge:${profile.theme.panelEdge};
-      --accent:${profile.theme.accent};
-      --soft:${profile.theme.accentSoft};
-      --text:#edfaff;
-      --muted:#98b8c6;
-      --line:rgba(255,255,255,.08)
+    :root {
+      --page: ${profile.theme.page};
+      --panel: ${profile.theme.panel};
+      --edge: ${profile.theme.panelEdge};
+      --accent: ${profile.theme.accent};
+      --soft: ${profile.theme.accentSoft};
+      --text: #ffffff;
+      --muted: #a0aec0;
+      --line: rgba(255, 255, 255, 0.08);
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:"Manrope",sans-serif;background:radial-gradient(circle at 12% 10%,${profile.theme.glow},transparent 24%),linear-gradient(180deg,rgba(0,82,255,.02),transparent 16%),var(--page);color:var(--text)}
-    .shell{max-width:1240px;margin:0 auto;padding:24px}
-    .hero,.panel{border:1px solid var(--edge);background:linear-gradient(145deg,rgba(0,82,255,.04),rgba(0,82,255,.01)),var(--panel);border-radius:28px;box-shadow:0 26px 70px rgba(0,0,0,.4)}
-    .hero{padding:30px}
-    .hero-grid,.dashboard,.stats,.mini-grid{display:grid;gap:18px}
-    .hero-grid{grid-template-columns:1.15fr .85fr;align-items:end}
-    .dashboard{grid-template-columns:1.1fr .9fr;margin-top:24px}
-    .stats,.mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .eyebrow,.badge{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid var(--edge);background:rgba(0,82,255,.1);color:var(--soft);font-size:12px;text-transform:uppercase;letter-spacing:.13em;font-weight:700;}
-    h1,h2,h3{margin:0;font-family:"Space Grotesk",sans-serif;letter-spacing:-.03em}
-    h1{margin-top:16px;font-size:clamp(42px,8vw,68px);line-height:1;max-width:14ch}
-    p{color:var(--muted);line-height:1.7}
-    .hero-actions,.toolbar{display:flex;gap:10px;flex-wrap:wrap}
-    .hero-actions{margin-top:22px}
-    .btn,button{border:0;border-radius:14px;padding:12px 16px;font:inherit;font-weight:800;cursor:pointer;transition:transform .2s ease,filter .2s ease, box-shadow .2s ease}
-    .btn,button{background:linear-gradient(135deg,var(--accent),var(--soft));color:#ffffff;box-shadow: 0 4px 14px var(--glow);}
-    .btn.alt{background:rgba(0,82,255,.1);color:var(--soft);border:1px solid var(--edge);box-shadow:none;}
-    .btn:hover,button:hover{transform:translateY(-2px);filter:brightness(1.1);box-shadow:0 6px 20px rgba(0,82,255,0.4)}
-    .card,.lane,.item{border-radius:22px;border:1px solid var(--line);background:rgba(255,255,255,.02);padding:18px}
-    .card strong,.lane strong{display:block;margin-top:8px;font-size:24px;font-family:"Space Grotesk",sans-serif;color:var(--soft);}
-    .panel{padding:22px}
-    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
-    .list{display:grid;gap:12px}
-    .lane{display:flex;justify-content:space-between;align-items:start;gap:16px; transition: background .3s;}
-    .lane:hover{background: rgba(0,82,255,0.06);}
-    .status{color:var(--soft);font-size:13px; font-weight:700;}
-    .endpoint code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-    .endpoint{padding:16px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.3)}
-    .endpoint code{display:block;margin-top:8px;padding:10px 12px;border-radius:12px;background:rgba(0,82,255,.1);color:#c8f6ff;overflow-wrap:anywhere}
-    .endpoint-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .mini-grid .card{min-height:140px}
-    pre{margin:14px 0 0;min-height:280px;max-height:460px;overflow:auto;padding:16px;border-radius:18px;background:rgba(0,0,0,.4);color:#dff9ff;border:1px solid var(--edge)}
-    a{text-decoration:none;}
-    @media (max-width:980px){.hero-grid,.dashboard,.stats,.mini-grid,.endpoint-grid{grid-template-columns:1fr}}
-    @media (max-width:640px){.shell{padding:16px}.hero,.panel{padding:18px;border-radius:24px}h1{font-size:40px}}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Manrope", sans-serif;
+      background: radial-gradient(circle at top left, rgba(0, 82, 255, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at bottom right, rgba(0, 82, 255, 0.1) 0%, transparent 40%),
+                  var(--page);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(104, 211, 145, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(104, 211, 145, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(104, 211, 145, 0); }
+    }
+    .shell { max-width: 1240px; margin: 0 auto; padding: 40px 24px; animation: fadeUp 0.8s ease-out; }
+    .hero, .panel {
+      position: relative;
+      background: rgba(0, 11, 24, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 32px;
+      overflow: hidden;
+    }
+    .hero::before, .panel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--soft), transparent);
+      opacity: 0.5;
+    }
+    .hero-grid, .dashboard, .stats, .mini-grid { display: grid; gap: 24px; }
+    .hero-grid { grid-template-columns: 1.15fr 0.85fr; align-items: center; }
+    .dashboard { grid-template-columns: 1fr; margin-top: 32px; }
+    .stats, .mini-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .eyebrow, .badge {
+      display: inline-flex; align-items: center; padding: 6px 14px;
+      border-radius: 999px; border: 1px solid var(--accent);
+      background: rgba(0, 82, 255, 0.15); color: var(--soft);
+      font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
+    }
+    h1, h2, h3 { margin: 0; font-family: "Outfit", sans-serif; letter-spacing: -0.02em; }
+    h1 {
+      margin-top: 20px;
+      font-size: clamp(40px, 6vw, 64px);
+      line-height: 1.1;
+      background: linear-gradient(135deg, #ffffff 0%, var(--soft) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p { color: var(--muted); line-height: 1.6; font-size: 16px; margin-top: 16px; }
+    .hero-actions, .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .btn, button {
+      border: 0; border-radius: 12px; padding: 14px 24px; font: inherit; font-weight: 700;
+      cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative; overflow: hidden;
+    }
+    .btn::after, button::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: all 0.5s;
+    }
+    .btn:hover::after, button:hover::after { left: 100%; }
+    .btn, button { background: linear-gradient(135deg, var(--accent), var(--soft)); color: #fff; box-shadow: 0 4px 15px rgba(0, 82, 255, 0.3); }
+    .btn.alt { background: rgba(0, 82, 255, 0.1); color: var(--soft); border: 1px solid var(--edge); box-shadow: none; }
+    .btn:hover, button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 82, 255, 0.5); }
+    .card, .lane, .item {
+      border-radius: 20px; border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02); padding: 24px;
+      transition: all 0.3s ease; position: relative; z-index: 1;
+    }
+    .card:hover, .lane:hover {
+      transform: translateY(-5px);
+      border-color: var(--soft);
+      background: rgba(0, 82, 255, 0.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .card strong, .lane strong { display: block; margin-top: 12px; font-size: 24px; font-family: "Outfit", sans-serif; color: #fff; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 24px; }
+    .list { display: grid; gap: 16px; }
+    .lane { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .status { color: #68d391; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .status::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #68d391; animation: pulseGlow 2s infinite; }
+    .status.watching { color: #f6ad55; }
+    .status.watching::before { background: #f6ad55; animation: none; }
+    .status.waiting { color: #63b3ed; }
+    .status.waiting::before { background: #63b3ed; animation: none; }
+    .endpoint code, pre { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 14px; }
+    .endpoint { padding: 20px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 12px; transition: 0.3s; }
+    .endpoint:hover { border-color: var(--accent); }
+    .endpoint code { display: block; padding: 12px; border-radius: 10px; background: rgba(0, 82, 255, 0.1); color: var(--soft); word-break: break-all; }
+    .endpoint-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    pre { margin: 24px 0 0; min-height: 250px; max-height: 400px; overflow: auto; padding: 20px; border-radius: 16px; background: #030812; color: #a1b0c8; border: 1px solid var(--line); }
+    a { text-decoration: none; }
+    @media (max-width:980px) { .hero-grid, .dashboard { grid-template-columns: 1fr; } }
+    @media (max-width:640px) { .shell { padding: 16px; } .hero, .panel { padding: 20px; } h1 { font-size: 36px; } }
   </style>
 </head>
 <body>
@@ -379,9 +448,8 @@ function buildUi() {
           <h1>Advanced Audits on the Base Network.</h1>
           <p>${profile.description}</p>
           <div class="hero-actions">
-            <a class="btn" href="#console">Open Console</a>
+            <a class="btn" href="#console">Launch Console</a>
             <a class="btn alt" href="/.well-known/agent-card.json" target="_blank">A2A Identity</a>
-            <a class="btn alt" href="/health" target="_blank">Ping Health</a>
           </div>
         </div>
         <div class="stats">
@@ -398,18 +466,18 @@ function buildUi() {
         <div class="section-head"><h2>Active Base Lanes</h2><span class="badge">A2A</span></div>
         <div class="list">
           <div class="lane"><div><strong>Smart Contract Audits</strong><p>Static analysis for Base L2 contracts instantly.</p></div><span class="status">Operational</span></div>
-          <div class="lane"><div><strong>Whale Observers</strong><p>On-chain hooks deployed for major TVL changes.</p></div><span class="status">Watching...</span></div>
-          <div class="lane"><div><strong>Finisher Node</strong><p>Compiles JSON-RPC outputs into standardized reports.</p></div><span class="status">Standing By</span></div>
+          <div class="lane"><div><strong>Whale Observers</strong><p>On-chain hooks deployed for major TVL changes.</p></div><span class="status watching">Watching...</span></div>
+          <div class="lane"><div><strong>Finisher Node</strong><p>Compiles JSON-RPC outputs into standardized reports.</p></div><span class="status waiting">Standing By</span></div>
         </div>
       </div>
       
       <div class="panel">
         <div class="section-head"><h2>System Endpoints</h2><span class="badge">Routes</span></div>
         <div class="endpoint-grid">
-          <div class="endpoint"><span class="badge">Identity</span><code>/.well-known/agent-card.json</code></div>
-          <div class="endpoint"><span class="badge">Node Health</span><code>/health</code></div>
-          <div class="endpoint"><span class="badge">MCP Root</span><code>/mcp</code></div>
-          <div class="endpoint"><span class="badge">A2A Entry</span><code>/a2a</code></div>
+          <div class="endpoint"><div><span class="badge">Identity</span></div><code>/.well-known/agent-card.json</code></div>
+          <div class="endpoint"><div><span class="badge">Node Health</span></div><code>/health</code></div>
+          <div class="endpoint"><div><span class="badge">MCP Root</span></div><code>/mcp</code></div>
+          <div class="endpoint"><div><span class="badge">A2A Entry</span></div><code>/a2a</code></div>
         </div>
       </div>
       
@@ -419,7 +487,7 @@ function buildUi() {
       </div>
       
       <div class="panel" id="console">
-        <div class="section-head"><h2>Agent Interact Console</h2><span class="badge">Network Simulator</span></div>
+        <div class="section-head"><h2>Agent Interact Console</h2><span class="badge">Simulator</span></div>
         <div class="toolbar">
           <button id="initializeBtn">Send MCP Init</button>
           <button id="toolsBtn">List Tools</button>
@@ -439,10 +507,10 @@ function buildUi() {
       multi_agent_swarm:{mission:'Investigate suspicious swap flow'}
     };
     async function postJson(body,endpoint){const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return response.json();}
-    document.getElementById('initializeBtn').addEventListener('click',async function(){const data=await postJson({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'basescan-tester',version:'1.0.0'}}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('toolsBtn').addEventListener('click',async function(){const data=await postJson({jsonrpc:'2.0',id:2,method:'tools/list'},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('toolCallBtn').addEventListener('click',async function(){const firstTool='base_contract_audit';const data=await postJson({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:firstTool,arguments:sampleToolArgs[firstTool]}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('a2aBtn').addEventListener('click',async function(){const data=await postJson({agent:'dispatcher',task:'Deep Audit Base Router'},'/a2a');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
+    document.getElementById('initializeBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'basescan-tester',version:'1.0.0'}}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
+    document.getElementById('toolsBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({jsonrpc:'2.0',id:2,method:'tools/list'},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
+    document.getElementById('toolCallBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const firstTool='base_contract_audit';const data=await postJson({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:firstTool,arguments:sampleToolArgs[firstTool]}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
+    document.getElementById('a2aBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({agent:'dispatcher',task:'Deep Audit Base Router'},'/a2a');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
   </script>
 </body>
 </html>`;
