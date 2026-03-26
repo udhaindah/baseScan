@@ -1,0 +1,46 @@
+{
+  "name": "BaseScan-Agent",
+  "description": "An enhanced multi-role runtime specialized for the Base ecosystem. Offers deep smart contract security auditing.",
+  "url": "https://basescan-agent.vercel.app",
+  "version": "1.0.0",
+  "author": "BaseScan Operator",
+  "capabilities": [
+    "mcp",
+    "a2a",
+    "tools",
+    "prompts",
+    "resources",
+    "swarm"
+  ],
+  "endpoints": {
+    "mcp": "https://basescan-agent.vercel.app/mcp",
+    "a2a": "https://basescan-agent.vercel.app/a2a",
+    "agentCard": "https://basescan-agent.vercel.app/.well-known/agent-card.json"
+  },
+  "skills": [
+    {
+      "name": "base_contract_audit",
+      "description": "Performs AST and bytecode level analysis on Base contracts."
+    },
+    {
+      "name": "wallet_tracker_base",
+      "description": "Monitors and flags whale transactions instantly."
+    },
+    {
+      "name": "liquidity_monitor",
+      "description": "Detects major liquidity shifts on Aerodrome and Base DEXes."
+    },
+    {
+      "name": "gas_fee_optimizer",
+      "description": "Calculates optimal transaction timing based on Base L2 conditions."
+    },
+    {
+      "name": "health_audit",
+      "description": "Validates all agent internal processes and queue states."
+    },
+    {
+      "name": "swarm_setup",
+      "description": "Deploys sub-agents for complex cross-contract tracking."
+    }
+  ]
+}
