@@ -312,6 +312,7 @@ function handleRpc(req, res) {
 }
 
 function buildUi() {
+  const toolsHtml = profile.tools.map((tool, i) => `<div class="card reveal" style="--delay:${i * 0.08}s"><div class="card-icon">${['&#9670;','&#9671;','&#9674;','&#10038;','&#9733;'][i % 5]}</div><strong>${tool.name}</strong><p>${tool.description}</p></div>`).join("");
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -320,197 +321,231 @@ function buildUi() {
   <title>${profile.name}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --page: ${profile.theme.page};
-      --panel: ${profile.theme.panel};
-      --edge: ${profile.theme.panelEdge};
-      --accent: ${profile.theme.accent};
-      --soft: ${profile.theme.accentSoft};
-      --text: #ffffff;
-      --muted: #a0aec0;
-      --line: rgba(255, 255, 255, 0.08);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Manrope", sans-serif;
-      background: radial-gradient(circle at top left, rgba(0, 82, 255, 0.15) 0%, transparent 40%),
-                  radial-gradient(circle at bottom right, rgba(0, 82, 255, 0.1) 0%, transparent 40%),
-                  var(--page);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 0 0 0 rgba(104, 211, 145, 0.4); }
-      70% { box-shadow: 0 0 0 10px rgba(104, 211, 145, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(104, 211, 145, 0); }
-    }
-    .shell { max-width: 1240px; margin: 0 auto; padding: 40px 24px; animation: fadeUp 0.8s ease-out; }
-    .hero, .panel {
-      position: relative;
-      background: rgba(0, 11, 24, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      padding: 32px;
-      overflow: hidden;
-    }
-    .hero::before, .panel::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--soft), transparent);
-      opacity: 0.5;
-    }
-    .hero-grid, .dashboard, .stats, .mini-grid { display: grid; gap: 24px; }
-    .hero-grid { grid-template-columns: 1.15fr 0.85fr; align-items: center; }
-    .dashboard { grid-template-columns: 1fr; margin-top: 32px; }
-    .stats, .mini-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-    .eyebrow, .badge {
-      display: inline-flex; align-items: center; padding: 6px 14px;
-      border-radius: 999px; border: 1px solid var(--accent);
-      background: rgba(0, 82, 255, 0.15); color: var(--soft);
-      font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;
-    }
-    h1, h2, h3 { margin: 0; font-family: "Outfit", sans-serif; letter-spacing: -0.02em; }
-    h1 {
-      margin-top: 20px;
-      font-size: clamp(40px, 6vw, 64px);
-      line-height: 1.1;
-      background: linear-gradient(135deg, #ffffff 0%, var(--soft) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    p { color: var(--muted); line-height: 1.6; font-size: 16px; margin-top: 16px; }
-    .hero-actions, .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
-    .btn, button {
-      border: 0; border-radius: 12px; padding: 14px 24px; font: inherit; font-weight: 700;
-      cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      position: relative; overflow: hidden;
-    }
-    .btn::after, button::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: all 0.5s;
-    }
-    .btn:hover::after, button:hover::after { left: 100%; }
-    .btn, button { background: linear-gradient(135deg, var(--accent), var(--soft)); color: #fff; box-shadow: 0 4px 15px rgba(0, 82, 255, 0.3); }
-    .btn.alt { background: rgba(0, 82, 255, 0.1); color: var(--soft); border: 1px solid var(--edge); box-shadow: none; }
-    .btn:hover, button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 82, 255, 0.5); }
-    .card, .lane, .item {
-      border-radius: 20px; border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.02); padding: 24px;
-      transition: all 0.3s ease; position: relative; z-index: 1;
-    }
-    .card:hover, .lane:hover {
-      transform: translateY(-5px);
-      border-color: var(--soft);
-      background: rgba(0, 82, 255, 0.05);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    .card strong, .lane strong { display: block; margin-top: 12px; font-size: 24px; font-family: "Outfit", sans-serif; color: #fff; }
-    .section-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 24px; }
-    .list { display: grid; gap: 16px; }
-    .lane { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-    .status { color: #68d391; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .status::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #68d391; animation: pulseGlow 2s infinite; }
-    .status.watching { color: #f6ad55; }
-    .status.watching::before { background: #f6ad55; animation: none; }
-    .status.waiting { color: #63b3ed; }
-    .status.waiting::before { background: #63b3ed; animation: none; }
-    .endpoint code, pre { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 14px; }
-    .endpoint { padding: 20px; border-radius: 16px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.4); display: flex; flex-direction: column; gap: 12px; transition: 0.3s; }
-    .endpoint:hover { border-color: var(--accent); }
-    .endpoint code { display: block; padding: 12px; border-radius: 10px; background: rgba(0, 82, 255, 0.1); color: var(--soft); word-break: break-all; }
-    .endpoint-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    pre { margin: 24px 0 0; min-height: 250px; max-height: 400px; overflow: auto; padding: 20px; border-radius: 16px; background: #030812; color: #a1b0c8; border: 1px solid var(--line); }
-    a { text-decoration: none; }
-    @media (max-width:980px) { .hero-grid, .dashboard { grid-template-columns: 1fr; } }
-    @media (max-width:640px) { .shell { padding: 16px; } .hero, .panel { padding: 20px; } h1 { font-size: 36px; } }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#030712;--surface:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.06);--border-h:rgba(77,140,255,0.25);--blue:#0052FF;--blue2:#3b82f6;--cyan:#38bdf8;--green:#34d399;--amber:#fbbf24;--sky:#93c5fd;--text:#f1f5f9;--muted:#64748b;--dim:#334155;--font:'Inter',system-ui,-apple-system,sans-serif}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.6}
+
+    /* ── Animated Background ── */
+    canvas#particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:.12;z-index:0;pointer-events:none;animation:orbFloat 20s ease-in-out infinite alternate}
+    .orb-1{width:600px;height:600px;background:var(--blue);top:-10%;left:-5%}
+    .orb-2{width:500px;height:500px;background:var(--cyan);bottom:-15%;right:-10%;animation-delay:-7s;animation-duration:25s}
+    .orb-3{width:350px;height:350px;background:#8b5cf6;top:40%;left:50%;animation-delay:-13s;animation-duration:30s}
+    @keyframes orbFloat{0%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.1)}100%{transform:translate(-20px,20px) scale(0.95)}}
+
+    /* ── Layout ── */
+    .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:60px 24px 80px}
+
+    /* ── Nav ── */
+    .nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:80px;opacity:0;animation:slideDown .6s .1s forwards}
+    .nav-brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+    .nav-brand .dot{width:10px;height:10px;border-radius:50%;background:var(--blue);box-shadow:0 0 12px var(--blue);animation:pulse 2s infinite}
+    .nav-links{display:flex;gap:8px}
+    .nav-links a{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid transparent;transition:all .25s}
+    .nav-links a:hover{color:var(--text);border-color:var(--border-h);background:rgba(59,130,246,.06)}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* ── Hero ── */
+    .hero{text-align:center;margin-bottom:100px}
+    .hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;border:1px solid var(--border-h);background:rgba(59,130,246,.08);font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.12em;margin-bottom:28px;opacity:0;animation:fadeUp .6s .2s forwards}
+    .hero-tag .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+    .hero h1{font-size:clamp(44px,7vw,76px);font-weight:900;line-height:1;letter-spacing:-.04em;background:linear-gradient(135deg,#fff 0%,var(--sky) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px;opacity:0;animation:fadeUp .7s .3s forwards}
+    .hero p{max-width:600px;margin:0 auto 36px;font-size:17px;color:var(--muted);font-weight:400;opacity:0;animation:fadeUp .7s .4s forwards}
+    .hero-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;opacity:0;animation:fadeUp .7s .5s forwards}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border:0;border-radius:12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;position:relative;overflow:hidden;transition:all .3s cubic-bezier(.4,0,.2,1)}
+    .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 4px 20px rgba(0,82,255,.3)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,82,255,.45)}
+    .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);backdrop-filter:blur(8px)}
+    .btn-ghost:hover{color:var(--text);border-color:var(--border-h);background:rgba(255,255,255,.03)}
+    .btn .shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transition:none}
+    .btn:hover .shimmer{left:150%;transition:left .6s}
+
+    /* ── Stats Row ── */
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:20px;overflow:hidden;margin-bottom:80px}
+    .stat{background:var(--bg);padding:32px 24px;text-align:center;transition:background .3s}
+    .stat:hover{background:rgba(59,130,246,.04)}
+    .stat-value{font-size:32px;font-weight:900;letter-spacing:-.03em;background:linear-gradient(135deg,var(--text),var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .stat-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:6px}
+
+    /* ── Sections ── */
+    .section{margin-bottom:64px}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .section-header h2{font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .tag{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border:1px solid var(--border)}
+    .tag-blue{color:var(--cyan);border-color:rgba(56,189,248,.2);background:rgba(56,189,248,.06)}
+    .tag-green{color:var(--green);border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.06)}
+
+    /* ── Panels ── */
+    .glass{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:all .35s cubic-bezier(.4,0,.2,1)}
+    .glass:hover{border-color:var(--border-h);box-shadow:0 0 40px rgba(59,130,246,.06)}
+
+    /* ── Lane Items ── */
+    .lane-list{display:flex;flex-direction:column;gap:12px}
+    .lane{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.01);transition:all .3s}
+    .lane:hover{background:rgba(59,130,246,.04);border-color:var(--border-h);transform:translateX(6px)}
+    .lane-info strong{font-size:15px;font-weight:700}
+    .lane-info p{font-size:13px;color:var(--muted);margin-top:2px}
+    .status-pill{display:flex;align-items:center;gap:8px;padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+    .status-pill::before{content:'';width:8px;height:8px;border-radius:50%}
+    .status-live{color:var(--green);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.15)}
+    .status-live::before{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+    .status-watch{color:var(--amber);background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.15)}
+    .status-watch::before{background:var(--amber)}
+    .status-idle{color:var(--sky);background:rgba(147,197,253,.08);border:1px solid rgba(147,197,253,.15)}
+    .status-idle::before{background:var(--sky)}
+
+    /* ── Endpoint Grid ── */
+    .ep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .ep{padding:20px;border-radius:16px;border:1px solid var(--border);background:rgba(0,0,0,.25);transition:all .3s}
+    .ep:hover{border-color:var(--border-h);transform:translateY(-2px)}
+    .ep-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .ep code{display:block;padding:10px 14px;border-radius:10px;background:rgba(59,130,246,.06);color:var(--cyan);font-size:13px;font-family:'SF Mono',ui-monospace,monospace;word-break:break-all}
+
+    /* ── Tool Cards ── */
+    .tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{padding:28px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.015);transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+    .card::after{content:'';position:absolute;inset:0;border-radius:20px;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(59,130,246,.08),transparent 60%);opacity:0;transition:opacity .4s}
+    .card:hover{border-color:var(--border-h);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+    .card:hover::after{opacity:1}
+    .card-icon{font-size:20px;color:var(--blue2);margin-bottom:12px}
+    .card strong{display:block;font-size:15px;font-weight:700;margin-bottom:4px;position:relative;z-index:1}
+    .card p{font-size:13px;color:var(--muted);margin-top:6px;position:relative;z-index:1}
+
+    /* ── Console ── */
+    .console-wrap{margin-top:12px}
+    .console-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .console-toolbar button{padding:10px 20px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.03);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;font-family:var(--font)}
+    .console-toolbar button:hover{border-color:var(--blue);background:rgba(59,130,246,.1);color:var(--cyan);transform:translateY(-1px)}
+    .console-toolbar button:active{transform:scale(.97)}
+    .console-output{min-height:220px;max-height:380px;overflow:auto;padding:20px;border-radius:16px;background:#020617;color:#94a3b8;border:1px solid var(--border);font-family:'SF Mono',ui-monospace,monospace;font-size:13px;line-height:1.7;position:relative}
+    .console-output::before{content:'> ';color:var(--blue2)}
+
+    /* ── Reveal Animation ── */
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1);transition-delay:var(--delay,0s)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    /* ── Responsive ── */
+    @media(max-width:900px){.stats-row{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:42px}}
+    @media(max-width:640px){.wrap{padding:32px 16px 60px}.stats-row{grid-template-columns:1fr}.nav{margin-bottom:48px}.hero{margin-bottom:60px}.section{margin-bottom:48px}.hero h1{font-size:36px}}
   </style>
 </head>
 <body>
-  <div class="shell">
+  <canvas id="particles"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="wrap">
+    <!-- Nav -->
+    <nav class="nav">
+      <div class="nav-brand"><span class="dot"></span>${profile.name}</div>
+      <div class="nav-links">
+        <a href="/.well-known/agent-card.json" target="_blank">A2A Card</a>
+        <a href="/health" target="_blank">Health</a>
+        <a href="#console-section">Console</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
     <section class="hero">
-      <div class="hero-grid">
-        <div>
-          <span class="eyebrow">${profile.heroLabel}</span>
-          <h1>Advanced Audits on the Base Network.</h1>
-          <p>${profile.description}</p>
-          <div class="hero-actions">
-            <a class="btn" href="#console">Launch Console</a>
-            <a class="btn alt" href="/.well-known/agent-card.json" target="_blank">A2A Identity</a>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="card"><span class="badge">Orchestrator</span><strong>${Object.keys(profile.agents).length} Roles</strong><p>Dispatch, observe, finish</p></div>
-          <div class="card"><span class="badge">Registry Score</span><strong>Maximized</strong><p>100% Schema validation</p></div>
-          <div class="card"><span class="badge">Capabilities</span><strong>${profile.tools.length} Tools</strong><p>MCP over JSON-RPC 2.0</p></div>
-          <div class="card"><span class="badge">Readiness</span><strong>Live</strong><p>A2A Endpoints active</p></div>
+      <div class="hero-tag"><span class="live-dot"></span> Base Network Agent</div>
+      <h1>Smart Contract<br>Audits, Reimagined.</h1>
+      <p>${profile.description}</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#console-section"><span class="shimmer"></span>Launch Console</a>
+        <a class="btn btn-ghost" href="/.well-known/agent-card.json" target="_blank">View Agent Card &rarr;</a>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-row reveal" style="--delay:.1s">
+      <div class="stat"><div class="stat-value">${Object.keys(profile.agents).length}</div><div class="stat-label">Agent Roles</div></div>
+      <div class="stat"><div class="stat-value">${profile.tools.length}</div><div class="stat-label">MCP Tools</div></div>
+      <div class="stat"><div class="stat-value">${profile.prompts.length}</div><div class="stat-label">Prompts</div></div>
+      <div class="stat"><div class="stat-value">${profile.resources.length}</div><div class="stat-label">Resources</div></div>
+    </div>
+
+    <!-- Active Lanes -->
+    <section class="section reveal" style="--delay:.15s">
+      <div class="section-header"><h2>Active Lanes</h2><span class="tag tag-green">Live</span></div>
+      <div class="glass">
+        <div class="lane-list">
+          <div class="lane"><div class="lane-info"><strong>Smart Contract Audits</strong><p>Static analysis for Base L2 contracts</p></div><span class="status-pill status-live">Operational</span></div>
+          <div class="lane"><div class="lane-info"><strong>Whale Observers</strong><p>On-chain hooks for major TVL changes</p></div><span class="status-pill status-watch">Watching</span></div>
+          <div class="lane"><div class="lane-info"><strong>Finisher Node</strong><p>Compiles outputs into standardized reports</p></div><span class="status-pill status-idle">Standing By</span></div>
         </div>
       </div>
     </section>
 
-    <section class="dashboard">
-      <div class="panel">
-        <div class="section-head"><h2>Active Base Lanes</h2><span class="badge">A2A</span></div>
-        <div class="list">
-          <div class="lane"><div><strong>Smart Contract Audits</strong><p>Static analysis for Base L2 contracts instantly.</p></div><span class="status">Operational</span></div>
-          <div class="lane"><div><strong>Whale Observers</strong><p>On-chain hooks deployed for major TVL changes.</p></div><span class="status watching">Watching...</span></div>
-          <div class="lane"><div><strong>Finisher Node</strong><p>Compiles JSON-RPC outputs into standardized reports.</p></div><span class="status waiting">Standing By</span></div>
-        </div>
+    <!-- Endpoints -->
+    <section class="section reveal" style="--delay:.2s">
+      <div class="section-header"><h2>Endpoints</h2><span class="tag tag-blue">Routes</span></div>
+      <div class="ep-grid">
+        <div class="ep"><div class="ep-label">Agent Identity</div><code>/.well-known/agent-card.json</code></div>
+        <div class="ep"><div class="ep-label">Health Check</div><code>/health</code></div>
+        <div class="ep"><div class="ep-label">MCP Protocol</div><code>/mcp</code></div>
+        <div class="ep"><div class="ep-label">A2A Gateway</div><code>/a2a</code></div>
       </div>
-      
-      <div class="panel">
-        <div class="section-head"><h2>System Endpoints</h2><span class="badge">Routes</span></div>
-        <div class="endpoint-grid">
-          <div class="endpoint"><div><span class="badge">Identity</span></div><code>/.well-known/agent-card.json</code></div>
-          <div class="endpoint"><div><span class="badge">Node Health</span></div><code>/health</code></div>
-          <div class="endpoint"><div><span class="badge">MCP Root</span></div><code>/mcp</code></div>
-          <div class="endpoint"><div><span class="badge">A2A Entry</span></div><code>/a2a</code></div>
+    </section>
+
+    <!-- Tools -->
+    <section class="section">
+      <div class="section-header reveal" style="--delay:.05s"><h2>Capabilities</h2><span class="tag tag-blue">MCP Tools</span></div>
+      <div class="tools-grid">${toolsHtml}</div>
+    </section>
+
+    <!-- Console -->
+    <section class="section reveal" style="--delay:.1s" id="console-section">
+      <div class="section-header"><h2>Interact Console</h2><span class="tag tag-blue">JSON-RPC</span></div>
+      <div class="glass">
+        <div class="console-wrap">
+          <div class="console-toolbar">
+            <button id="initializeBtn">Initialize</button>
+            <button id="toolsBtn">List Tools</button>
+            <button id="toolCallBtn">Audit Contract</button>
+            <button id="a2aBtn">A2A Dispatch</button>
+          </div>
+          <pre class="console-output" id="output">Ready. Click a button above to interact with the agent...</pre>
         </div>
-      </div>
-      
-      <div class="panel">
-        <div class="section-head"><h2>Internal Tools</h2><span class="badge">Capabilities</span></div>
-        <div class="mini-grid">${profile.tools.map((tool) => `<div class="card"><strong>${tool.name}</strong><p>${tool.description}</p></div>`).join("")}</div>
-      </div>
-      
-      <div class="panel" id="console">
-        <div class="section-head"><h2>Agent Interact Console</h2><span class="badge">Simulator</span></div>
-        <div class="toolbar">
-          <button id="initializeBtn">Send MCP Init</button>
-          <button id="toolsBtn">List Tools</button>
-          <button id="toolCallBtn">Test Tool Call</button>
-          <button id="a2aBtn">Trigger A2A Event</button>
-        </div>
-        <pre id="output">Initialize test requests to see BaseScan response logic...</pre>
       </div>
     </section>
   </div>
+
   <script>
-    const sampleToolArgs={
-      base_contract_audit:{contract_address:'0x123...abc',depth:'quick'},
-      track_base_whale:{wallet:'base.eth'},
-      gas_optimizer:{tx_type:'swap'},
-      health_audit:{window:'24h'},
-      multi_agent_swarm:{mission:'Investigate suspicious swap flow'}
-    };
-    async function postJson(body,endpoint){const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return response.json();}
-    document.getElementById('initializeBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'basescan-tester',version:'1.0.0'}}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('toolsBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({jsonrpc:'2.0',id:2,method:'tools/list'},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('toolCallBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const firstTool='base_contract_audit';const data=await postJson({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:firstTool,arguments:sampleToolArgs[firstTool]}},'/mcp');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
-    document.getElementById('a2aBtn').addEventListener('click',async function(){document.getElementById('output').textContent='Loading...';const data=await postJson({agent:'dispatcher',task:'Deep Audit Base Router'},'/a2a');document.getElementById('output').textContent=JSON.stringify(data,null,2);});
+    /* ── Particle Canvas ── */
+    (function(){
+      const c=document.getElementById('particles'),x=c.getContext('2d');
+      let w,h,pts=[];
+      function resize(){w=c.width=innerWidth;h=c.height=innerHeight}
+      function init(){pts=[];for(let i=0;i<60;i++)pts.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.5,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3,o:Math.random()*.4+.1})}
+      function draw(){x.clearRect(0,0,w,h);pts.forEach(p=>{p.x+=p.dx;p.y+=p.dy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fillStyle='rgba(59,130,246,'+p.o+')';x.fill()});requestAnimationFrame(draw)}
+      addEventListener('resize',()=>{resize();init()});resize();init();draw();
+    })();
+
+    /* ── Card Mouse Glow ── */
+    document.querySelectorAll('.card').forEach(card=>{
+      card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect();card.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');card.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')})
+    });
+
+    /* ── Scroll Reveal ── */
+    const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+    /* ── API Calls ── */
+    const sampleToolArgs={base_contract_audit:{contract_address:'0x123...abc',depth:'quick'},track_base_whale:{wallet:'base.eth'},gas_optimizer:{tx_type:'swap'},health_audit:{window:'24h'},multi_agent_swarm:{mission:'Investigate suspicious swap flow'}};
+    async function postJson(body,ep){const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+    async function run(fn){document.getElementById('output').textContent='> Sending request...';try{const d=await fn();document.getElementById('output').textContent='> '+JSON.stringify(d,null,2)}catch(e){document.getElementById('output').textContent='> Error: '+e.message}}
+    document.getElementById('initializeBtn').addEventListener('click',()=>run(()=>postJson({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05',capabilities:{},clientInfo:{name:'basescan-ui',version:'1.0.0'}}},'/mcp')));
+    document.getElementById('toolsBtn').addEventListener('click',()=>run(()=>postJson({jsonrpc:'2.0',id:2,method:'tools/list'},'/mcp')));
+    document.getElementById('toolCallBtn').addEventListener('click',()=>run(()=>postJson({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:'base_contract_audit',arguments:sampleToolArgs.base_contract_audit}},'/mcp')));
+    document.getElementById('a2aBtn').addEventListener('click',()=>run(()=>postJson({agent:'dispatcher',task:'Deep Audit Base Router'},'/a2a')));
   </script>
 </body>
 </html>`;
